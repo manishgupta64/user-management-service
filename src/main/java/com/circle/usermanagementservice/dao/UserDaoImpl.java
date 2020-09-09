@@ -10,8 +10,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserDaoImpl implements UserDaoCustom
@@ -74,5 +74,20 @@ public class UserDaoImpl implements UserDaoCustom
         cq.where( predicates.toArray( new Predicate[0] ) );
         List<User> users = em.createQuery( cq ).getResultList();
         return users;
+    }
+
+    @Override
+    public Map<String, Integer> countUsersByBloodGroup()
+    {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery< Object[] > cq =  cb.createQuery( Object[].class );
+        Root< User > root = cq.from( User.class );
+
+        cq.multiselect( root.get("bloodGroup"), cb.count( root ) ).groupBy( root.get( "bloodGroup") );
+
+        Map<String, Integer> usersCountByBloodGroup = em.createQuery( cq ).getResultList().stream()
+                .collect(Collectors.toMap( k-> { return k[0].toString(); }, v -> { return Integer.parseInt( v[1].toString() ); } ));
+
+        return usersCountByBloodGroup;
     }
 }

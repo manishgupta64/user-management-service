@@ -6,10 +6,7 @@ import com.circle.usermanagementservice.exceptions.InvalidArgumentException;
 import com.circle.usermanagementservice.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,18 +22,21 @@ public class UserController
     IUserBusiness userBusiness;
 
     @PostMapping( value = "/user/info/v1/save", consumes = "application/json", produces = "application/json")
-    public ResponseEntity< ? > saveUser(@RequestBody User user, HttpServletRequest request, HttpServletResponse response )
+    public ResponseEntity< ? > saveUser(@RequestBody List< User > users, HttpServletRequest request, HttpServletResponse response )
     {
         Map< String, String > errors  = new HashMap<>();
         try
         {
-            if( user == null )
+            if( users == null )
             {
                 errors.put( "message", "user object is null." );
-                throw new InvalidArgumentException("user object is null while saving user." + user );
+                throw new InvalidArgumentException("user object is null while saving user." );
             }
-            userBusiness.saveUser( user );
-            return ResponseEntity.ok( user );
+            for( User user : users )
+            {
+                userBusiness.saveUser( user );
+            }
+            return ResponseEntity.ok( users );
         }
         catch (Exception e)
         {
@@ -79,8 +79,39 @@ public class UserController
         }
     }
 
+    @GetMapping( value = "/user/countByBloodGroup/v1")
+    public ResponseEntity< ? > getUsersCountByBloodGroup()
+    {
+        Map< String, Integer > usersCountByBloodGroup = userBusiness.getUsersCountByBloodGroup();
+        Map< String, Object > data = new HashMap<>();
+        data.put("sucess", String.valueOf( true ));
+        data.put("usersCountByBloodGroup", usersCountByBloodGroup );
+        return ResponseEntity.ok( data );
+    }
 
-
+    @DeleteMapping( value = "/user/delete/v1/{userId}")
+    public ResponseEntity< ? > deleteUser( @PathVariable Integer userId )
+    {
+        Map< String, String> errors = new HashMap<>();
+        try
+        {
+            if( userId == null || userId <= 0 )
+            {
+                errors.put("message", "Invalid userId" + userId );
+                throw new InvalidArgumentException("Invalid userId");
+            }
+            boolean isUserDeleted = userBusiness.deleteUserById( userId );
+            Map< String, Object > data = new HashMap<>();
+            data.put("success", String.valueOf( true ));
+            data.put("isUserDeleted", String.valueOf( isUserDeleted ));
+            return ResponseEntity.ok( data );
+        }
+        catch (InvalidArgumentException e)
+        {
+            errors.put("error", String.valueOf( true ) );
+            return ResponseEntity.ok( errors );
+        }
+    }
 
 
 }

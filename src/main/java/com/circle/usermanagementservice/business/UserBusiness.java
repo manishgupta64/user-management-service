@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserBusiness implements IUserBusiness
@@ -29,13 +30,42 @@ public class UserBusiness implements IUserBusiness
         {
             users = new ArrayList<>();
         }
+        for (User user : users) {
+            if( user.getAddress() != null )
+            {
+                user.getAddress().getAddressId();
+            }
+        }
         return users;
     }
 
     @Override
     public List<User> searchUsers(UserSearchBean userSearchBean) {
         List< User> searchResult = userDao.findUsersByFirstNameAndLastName( userSearchBean.getFirstName(), userSearchBean.getLastName() );
+        searchResult.stream().forEach( user -> {
+            if( user.getAddress() != null )
+            {
+                user.getAddress().getAddressId();
+            }
+        });
         return searchResult;
     }
 
+    @Override
+    public Map<String, Integer> getUsersCountByBloodGroup()
+    {
+        return userDao.countUsersByBloodGroup();
+    }
+
+    @Override
+    public boolean deleteUserById(int userId)
+    {
+        boolean isUserDeleted = false;
+        if( userId > 0 )
+        {
+            userDao.deleteById( userId );
+            isUserDeleted = true;
+        }
+        return isUserDeleted;
+    }
 }

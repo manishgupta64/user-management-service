@@ -22,6 +22,8 @@ public class User implements Serializable
 
     private String mobile1;
 
+    private String bloodGroup;
+
     public int getUserId() {
         return userId;
     }
@@ -68,5 +70,9 @@ public class User implements Serializable
 
     public void setMobile1(String mobile1) {
         this.mobile1 = mobile1;
+    }
+
+    public void setBloodGroup(String bloodGroup) {
+        this.bloodGroup = bloodGroup;
     }
 }
