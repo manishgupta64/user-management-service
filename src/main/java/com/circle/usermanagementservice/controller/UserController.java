@@ -40,6 +40,7 @@ public class UserController
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             errors.put("error", String.valueOf( true ));
         }
         return ResponseEntity.ok( errors );

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserBusiness implements IUserBusiness
@@ -63,8 +64,12 @@ public class UserBusiness implements IUserBusiness
         boolean isUserDeleted = false;
         if( userId > 0 )
         {
-            userDao.deleteById( userId );
-            isUserDeleted = true;
+            Optional< User > user = userDao.findById( userId );
+            if ( user.isPresent() )
+            {
+                userDao.deleteById( userId );
+                isUserDeleted = true;
+            }
         }
         return isUserDeleted;
     }
